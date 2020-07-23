@@ -1,5 +1,8 @@
 
-//
+// I coded this in c++ using sfml on xcode.
+// This code will run the card game SET from start to finish.
+
+// from sfml: 
 // Disclaimer:
 // ----------
 //
@@ -228,9 +231,9 @@ void selectacard(card deck[3][3][3][3], card onthefield[21],int *numonfield,card
     }
 }
 
-void endgame(Time *elapsed){
-    
-}
+//void endgame(Time *elapsed){
+//    
+//}
 
 
 int main(int, char const**){
