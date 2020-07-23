@@ -1,5 +1,5 @@
 
-// I coded this in c++ using sfml on xcode.
+// I coded this from scratch in c++ using sfml on xcode.
 // This code will run the card game SET from start to finish.
 
 // from sfml: 
