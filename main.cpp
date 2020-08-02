@@ -312,36 +312,37 @@ int main(int, char const**){
     int d;
     int b;
     int c;
-    bool mousePressed=false;
     
+    Color Purple(177,0,177);
     Text scoreD("Score = 0", font, 50);
-    scoreD.setFillColor(Color::Magenta);
+    scoreD.setFillColor(Color::Red);
     
     Text sboard("SETs on board", font, 50);
-    sboard.setFillColor(Color::White);
+    sboard.setFillColor(Color::Green);
     
     Text sselect("Number of cards selected ", font, 50);
-    sselect.setFillColor(Color::Yellow);
+    sselect.setFillColor(Purple);
     
     Text sfield("Number on field ", font, 50);
-    sfield.setFillColor(Color::Blue);
+    sfield.setFillColor(Color::Red);
     
     Text solutions("Solution indices: ", font, 50);
-    solutions.setFillColor(Color::Magenta);
+    solutions.setFillColor(Color::Green);
     
     Text scardsleft("Cards left: ", font, 50);
-    scardsleft.setFillColor(Color::Magenta);
+    scardsleft.setFillColor(Purple);
     
     Text sgameOver("", font, 50);
-    sgameOver.setFillColor(Color::Magenta);
+    sgameOver.setFillColor(Color::Red);
 
     startgame(deck,&cardsleft,onthefield,&numonfield,false,0,&setsOnBoard,&d,&b,&c);
-    
+    setexists(onthefield,numonfield,&setsOnBoard,&d,&b,&c);
+  
     Clock clock;
    
     Time elapsed;
     Text stopwatch("00:00", font, 50);
-    stopwatch.setFillColor(Color::Blue);
+    stopwatch.setFillColor(Color::Green);
     
     // Play the music
     music.play();
@@ -367,19 +368,20 @@ int main(int, char const**){
             if (Keyboard::isKeyPressed(Keyboard::Return)){
                 score = 0;
             }
+           Vector2i localPosition;
+        if (event.type == Event::MouseButtonReleased)
+            {
+                if (event.mouseButton.button == Mouse::Left)
+                {
+                 localPosition = Mouse::getPosition(window);
+                 selectacard(deck,onthefield,&numonfield,selectarray,&numselected,localPosition,&cardsleft,&setsOnBoard,indexofselected,&score,&d,&b,&c);
+             }
+            }
         }
         
-        setexists(onthefield,numonfield,&setsOnBoard,&d,&b,&c);
-        Vector2i localPosition;
-        if (Mouse::isButtonPressed(Mouse::Left))
-         {
-             localPosition = Mouse::getPosition(window);
-             mousePressed=true;
-         }
-        if(mousePressed==true){
-        selectacard(deck,onthefield,&numonfield,selectarray,&numselected,localPosition,&cardsleft,&setsOnBoard,indexofselected,&score,&d,&b,&c);
-            mousePressed=false;
-        }
+        
+       
+       
         
         if(cardsleft!=0||setsOnBoard!=0){
         elapsed = clock.getElapsedTime();
