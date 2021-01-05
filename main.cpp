@@ -1,8 +1,4 @@
-
-// I coded this from scratch in c++ using sfml on xcode.
-// This code will run the card game SET from start to finish.
-
-// from sfml: 
+//
 // Disclaimer:
 // ----------
 //
@@ -22,6 +18,7 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "ResourcePath.hpp"
+#include <vector>
 using namespace sf;
 
 class card{// The class
@@ -35,7 +32,7 @@ class card{// The class
     //the set would be completed by 2 purple empty squiggles (1,2,0,1)
     Texture style;//load the cards look into here
     bool played=false;
-    RectangleShape cardRectSize;
+    //RectangleShape cardRectSize;
     Sprite look;
 };
 
@@ -68,22 +65,28 @@ card thirdcard(card one, card two){
     return three;
 }
 
-void dealacard(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,bool cardremoved,int index){
-    int a=rand()%81;
+void dealacard(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,bool cardremoved,int index,std::vector<int> &randomNumbers){
+    int rnSize = randomNumbers.size();
+    int a=rand()%rnSize;
+    int random = randomNumbers[a];
+    std::cout<<rnSize<<" "<<random<<" ";
+    //select rand()%length of vector. use that random number as an index for the number stored at that point in the vector. do everything with the stored number not the random number and remove the stored number from the vector.
     int b[4]={0};
     for(int i=3;i>=0;i--){
-        b[i]=a%3;
-        a = a/3;
+        b[i]=random%3;
+        random = random/3;
     }
-    while(deck[b[0]][b[1]][b[2]][b[3]].played==true){//can change this to linkedlist make game a bit faster
-           a=rand()%81;
-        for(int i=3;i>=0;i--){
-            b[i]=a%3;
-            a = a/3;
-        }
-    }
+    //while(deck[b[0]][b[1]][b[2]][b[3]].played==true){//can change this to linkedlist make game a bit faster
+    //       a=rand()%81;
+    //    for(int i=3;i>=0;i--){
+    //        b[i]=a%3;
+    //       a = a/3;
+    //    }
+    //    std::cout<<" oops ";
+   // }
     deck[b[0]][b[1]][b[2]][b[3]].played=true;
     *cardsleft -= 1;
+    randomNumbers.erase(randomNumbers.begin()+a);
     if(!cardremoved){
     onthefield[*numonfield]=deck[b[0]][b[1]][b[2]][b[3]];
         onthefield[*numonfield].look.setPosition(200*(*numonfield%4),200*(*numonfield/4));
@@ -95,10 +98,10 @@ void dealacard(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *num
     return;
 }
 
-void dealthreecards(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,bool cardremoved,int index){
-        dealacard(deck,cardsleft,onthefield,numonfield,false,index);
-        dealacard(deck,cardsleft,onthefield,numonfield,false,index);
-        dealacard(deck,cardsleft,onthefield,numonfield,false,index);
+void dealthreecards(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,bool cardremoved,int index,std::vector<int> &randomNumbers){
+        dealacard(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
+        dealacard(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
+        dealacard(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
         return;
 }
 
@@ -136,20 +139,20 @@ bool setexists(card onthefield[21],int numonfield,int *setsOnBoard,int *d,int *b
 }
 
 
-void startgame(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,bool cardremoved,int index,int *setsOnBoard,int *d,int *b,int *c){
-    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index);
-    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index);
-    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index);
-    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index);
+void startgame(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,bool cardremoved,int index,int *setsOnBoard,int *d,int *b,int *c,std::vector<int> &randomNumbers){
+    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
+    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
+    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
+    dealthreecards(deck,cardsleft,onthefield,numonfield,false,index,randomNumbers);
     for(int i=0;i<12;i++){
         onthefield[i].look.setPosition(200*(i%4),200*(i/4));
         }
     while(!setexists(onthefield,*numonfield,setsOnBoard,d,b,c)){
-        dealthreecards(deck,cardsleft,onthefield,numonfield,false,0);
+        dealthreecards(deck,cardsleft,onthefield,numonfield,false,0,randomNumbers);
     }
 }
 
-void itisaset(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,int indexofselected[3],card selectarray[3],int *setsOnBoard,int *score,int *d,int *b,int *c){
+void itisaset(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numonfield,int indexofselected[3],card selectarray[3],int *setsOnBoard,int *score,int *d,int *b,int *c,std::vector<int> &randomNumbers){
     int replace[3];
     card replacementCard[3];
     int thatone=0;
@@ -172,7 +175,7 @@ void itisaset(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numo
         for(int i=*numonfield;i<temp;i++){
             if(!cardsAreEqual(onthefield[i],empty)){
                 replacementCard[thatotherone]=onthefield[i];
-                std::cout<<onthefield[i].multiplicity<<onthefield[i].color<<onthefield[i].fill<<onthefield[i].shape<<std::endl;
+                //std::cout<<onthefield[i].multiplicity<<onthefield[i].color<<onthefield[i].fill<<onthefield[i].shape<<std::endl;
                 thatotherone++;
             }
         }
@@ -186,7 +189,7 @@ void itisaset(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numo
     }
     if(temp==*numonfield&&*numonfield==12){
     for(int i=0;i<3;i++){
-        dealacard(deck,cardsleft,onthefield,numonfield,true,indexofselected[i]);
+        dealacard(deck,cardsleft,onthefield,numonfield,true,indexofselected[i],randomNumbers);
         onthefield[indexofselected[i]].look.setPosition(200*(indexofselected[i]%4),200*(indexofselected[i]/4));
     }
     std::cout<<"SET!"<<std::endl;
@@ -197,7 +200,7 @@ void itisaset(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numo
  //   }
   //  }
     while((!setexists(onthefield,*numonfield,setsOnBoard,d,b,c))&&*cardsleft!=0){
-        dealthreecards(deck,cardsleft,onthefield,numonfield,false,0);
+        dealthreecards(deck,cardsleft,onthefield,numonfield,false,0,randomNumbers);
       //  for(int i=0;i<3;i++){
       //          onthefield[*numonfield+i].look.setPosition(200*(indexofselected[i]%4),200*(indexofselected[i]/4));
      //   }
@@ -206,7 +209,7 @@ void itisaset(card deck[3][3][3][3],int *cardsleft,card onthefield[21],int *numo
     return;
 }
 
-void selectacard(card deck[3][3][3][3], card onthefield[21],int *numonfield,card selectarray[3], int *numselected,Vector2i m,int *cardsleft,int *setsOnBoard,int indexofselected[3],int *score,int *d,int *b,int *c){
+void selectacard(card deck[3][3][3][3], card onthefield[21],int *numonfield,card selectarray[3], int *numselected,Vector2i m,int *cardsleft,int *setsOnBoard,int indexofselected[3],int *score,int *d,int *b,int *c,std::vector<int> &randomNumbers){
     int xcard=139;
     int ycard=87;
     int stupidint=0;
@@ -225,18 +228,36 @@ void selectacard(card deck[3][3][3][3], card onthefield[21],int *numonfield,card
         *numselected += 1;
     if(*numselected==3){
         if(setisfound(selectarray)){
-            itisaset(deck,cardsleft,onthefield,numonfield,indexofselected, selectarray,setsOnBoard,score,d,b,c);
+            itisaset(deck,cardsleft,onthefield,numonfield,indexofselected, selectarray,setsOnBoard,score,d,b,c,randomNumbers);
         }
         *numselected=0;
     }
 }
 
-//void endgame(Time *elapsed){
-//    
-//}
+void endgame(card deck[3][3][3][3], card onthefield[21], int *setsOnBoard, int *numselected, int *cardsleft, int *numonfield, int *score,int *d,int *b,int *c,std::vector<int> &randomNumbers){
+    for(int i=0;i<3;i++){
+    for(int j=0;j<3;j++){
+    for(int k=0;k<3;k++){
+    for(int l=0;l<3;l++){
+        deck[i][j][k][l].played=false;
+    }
+    }
+    }
+    }
+    *setsOnBoard=0;
+    *numselected=0;
+    *cardsleft=81;
+    *numonfield=0;
+    *score=0;
+    for(int i=0;i<81;i++){
+        randomNumbers.push_back(i);
+    }
+    startgame(deck,cardsleft,onthefield,numonfield,false,0,setsOnBoard,d,b,c,randomNumbers);
+    setexists(onthefield,*numonfield,setsOnBoard,d,b,c);
+}
 
 
-int main(int, char const**){
+int main(){
     
     // Create the main window
     RenderWindow window(VideoMode(1920, 1080), "SFML window");
@@ -265,8 +286,9 @@ int main(int, char const**){
     if (!font.loadFromFile(resourcePath() + "sansation.ttf")) {
         return EXIT_FAILURE;
     }
-    Text text("SET!", font, 50);
-    text.setFillColor(Color::Magenta);
+    
+    //Text text("SET!", font, 50);
+    //text.setFillColor(Color::Magenta);
 
     // Load a music to play
     Music music;
@@ -287,7 +309,7 @@ int main(int, char const**){
         deck[i][j][k][l].color=j;
         deck[i][j][k][l].fill=k;
         deck[i][j][k][l].shape=l;
-        fileName<<"SET/SET"<<i<<j<<k<<l<<".png";
+        fileName<<"SET/SET"<<i<<j<<k<<l<<".png";//SET0000.png
         if (!deck[i][j][k][l].style.loadFromFile(resourcePath() +  fileName.str())) {
             return EXIT_FAILURE;
         }
@@ -300,7 +322,10 @@ int main(int, char const**){
     }
     }
 
-    
+    std::vector<int> randomNumbers;
+    for(int i=0;i<81;i++){
+        randomNumbers.push_back(i);
+    }
     int indexofselected[3];
     int setsOnBoard=0;
     card selectarray[3];
@@ -314,7 +339,8 @@ int main(int, char const**){
     int c;
     
     Color Purple(177,0,177);
-    Text scoreD("Score = 0", font, 50);
+    
+    Text scoreD("SETs found = 0", font, 50);
     scoreD.setFillColor(Color::Red);
     
     Text sboard("SETs on board", font, 50);
@@ -335,17 +361,23 @@ int main(int, char const**){
     Text sgameOver("", font, 50);
     sgameOver.setFillColor(Color::Red);
 
-    startgame(deck,&cardsleft,onthefield,&numonfield,false,0,&setsOnBoard,&d,&b,&c);
+    startgame(deck,&cardsleft,onthefield,&numonfield,false,0,&setsOnBoard,&d,&b,&c,randomNumbers);
     setexists(onthefield,numonfield,&setsOnBoard,&d,&b,&c);
-  
+    
     Clock clock;
    
     Time elapsed;
     Text stopwatch("00:00", font, 50);
     stopwatch.setFillColor(Color::Green);
     
+    Text highScoreValue;
+    Text highScore("High Score: ", font, 50);
+    highScore.setFillColor(Color::Red);
+    highScore.setStyle(Text::Underlined);
+    int highScoreSec=0;
+    
     // Play the music
-    music.play();
+    //music.play();
 
     // Start the game loop
     while (window.isOpen())
@@ -365,31 +397,42 @@ int main(int, char const**){
                 window.close();
             }
             
-            if (Keyboard::isKeyPressed(Keyboard::Return)){
-                score = 0;
-            }
-           Vector2i localPosition;
-        if (event.type == Event::MouseButtonReleased)
+            Vector2i localPosition;
+            if (event.type == Event::MouseButtonReleased)
             {
                 if (event.mouseButton.button == Mouse::Left)
                 {
                  localPosition = Mouse::getPosition(window);
-                 selectacard(deck,onthefield,&numonfield,selectarray,&numselected,localPosition,&cardsleft,&setsOnBoard,indexofselected,&score,&d,&b,&c);
+                 selectacard(deck,onthefield,&numonfield,selectarray,&numselected,localPosition,&cardsleft,&setsOnBoard,indexofselected,&score,&d,&b,&c,randomNumbers);
              }
+            }
+            //if (Keyboard::isKeyPressed(Keyboard::Return)){
+            //    endgame();//restart game
+            //}
+            if(cardsleft==0&&setsOnBoard==0){
+            if(event.type == Event::KeyPressed && event.key.code == Keyboard::Space){
+                if(highScoreSec==0||highScoreSec>elapsed.asSeconds()){
+                    highScoreSec=elapsed.asSeconds();
+                    highScoreValue=stopwatch;
+                }
+                highScoreValue.setPosition(1050,700);
+                highScoreValue.setFillColor(Color::Red);
+                sgameOver.setString("");
+                endgame(deck, onthefield, &setsOnBoard, &numselected, &cardsleft, &numonfield, &score, &d, &b, &c,randomNumbers);
+                clock.restart();
+                
+            }
             }
         }
         
         
-       
-       
         
         if(cardsleft!=0||setsOnBoard!=0){
         elapsed = clock.getElapsedTime();
         }
         else {
-            sgameOver.setString("You completed the deck!");
+            sgameOver.setString("You completed the deck!\nPress Spacebar to start a new game");
         }
-        
         int seconds=elapsed.asSeconds();
         int minutes = seconds/60;
         seconds = seconds%60;
@@ -414,7 +457,7 @@ int main(int, char const**){
        //std::cout<<fileName.str()<<std::endl;
         
         std::stringstream ss;
-        ss<<"Score "<<score;
+        ss<<"Sets found "<<score;
         scoreD.setString(ss.str());
         scoreD.setPosition(750,0);
         
@@ -443,6 +486,10 @@ int main(int, char const**){
         scardsleft.setString(scarde.str());
         scardsleft.setPosition(750,600);
         
+        
+        highScore.setPosition(750,700);
+        
+        
         sgameOver.setPosition(0,500);
         
         // Clear screen
@@ -461,6 +508,8 @@ int main(int, char const**){
         window.draw(sboard);
         window.draw(stopwatch);
         window.draw(sselect);
+        window.draw(highScore);
+        window.draw(highScoreValue);
         for(int i=0;i<numonfield;i++){
         window.draw(onthefield[i].look);
         }
